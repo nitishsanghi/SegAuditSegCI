@@ -1,0 +1,1 @@
+"""Industrial domain report cards."""
