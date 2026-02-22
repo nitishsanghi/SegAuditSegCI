@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+title: SegAudit
+message: "If you use SegAudit, please cite this software."
+type: software
+authors:
+  - name: SegAudit Contributors
+version: 0.1.0
+date-released: 2026-02-22

@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Packaging
+*.egg-info/
+dist/
+build/
+
+# Virtual envs
+.venv/
+venv/
+env/
+ENV/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
+.env.*
+
+# Tool outputs
+out/
+
+# Local planning docs
+ARCHITECTURE.md
+SPEC.md
+docs/ENGINEERING_STANDARDS.md
+Guide for authors - SoftwareX - ISSN 2352-7110 | ScienceDirect.com by Elsevier.pdf
