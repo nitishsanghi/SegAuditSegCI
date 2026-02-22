@@ -1,0 +1,45 @@
+name: SoftwareX Checklist Guard
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  enforce-checklist-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Enforce checklist updates for submission-critical changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+
+          changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+          echo "Changed files:"
+          printf '%s\n' "$changed_files"
+
+          critical_regex='^(README\.md|LICENSE\.txt|CITATION\.cff|pyproject\.toml|repo/src/|repo/tests/|repo/examples/|repo/data/|\.github/workflows/)'
+          critical_changes="$(printf '%s\n' "$changed_files" | grep -E "$critical_regex" || true)"
+
+          if [ -z "$critical_changes" ]; then
+            echo "No submission-critical files changed. Checklist update not required."
+            exit 0
+          fi
+
+          echo "Submission-critical files changed:"
+          printf '%s\n' "$critical_changes"
+
+          if printf '%s\n' "$changed_files" | grep -qx 'docs/SOFTWAREX_CHECKLIST.md'; then
+            echo "Checklist update detected."
+            exit 0
+          fi
+
+          echo "::error::Submission-critical files changed, but docs/SOFTWAREX_CHECKLIST.md was not updated."
+          echo "::error::Please update docs/SOFTWAREX_CHECKLIST.md in this PR."
+          exit 1
