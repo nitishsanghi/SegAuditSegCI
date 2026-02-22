@@ -49,7 +49,7 @@ PR usage rule:
 | SX-022 | Funding declaration prepared (or no-funding statement) | TODO | N/A | Add explicit text |
 | SX-023 | AI-use declaration included if applicable | TODO | N/A | Required if non-trivial AI tool use in manuscript prep |
 | SX-024 | No AI listed as author/co-author | DONE | authorship policy | Keep enforced |
-| SX-026 | Submission checklist complete (files, refs, permissions, etc.) | IN_PROGRESS | `.github/pull_request_template.md`, `.github/workflows/softwarex-checklist-guard.yml` | PR-level enforcement added; final submission checklist still pending |
+| SX-026 | Submission checklist complete (files, refs, permissions, etc.) | IN_PROGRESS | `.github/pull_request_template.md`, `.github/workflows/softwarex-checklist-guard.yml`, `.github/workflows/ci.yml` | PR-level enforcement added with stable required check names; final submission checklist still pending |
 | SX-029 | Proof corrections returned within 2 days after acceptance | TODO | N/A | Operational readiness |
 
 ## D) Tracking and Audit Trail
