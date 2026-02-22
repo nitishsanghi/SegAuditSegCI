@@ -50,7 +50,7 @@ class Sample:
         _require_non_empty_string(meta.get("sensor"), field_name="meta.sensor")
         if self.pred is None:
             raise SampleValidationError("'pred' is required and cannot be None.")
-        self.meta = meta
+        self.meta = deepcopy(meta)
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a plain dictionary."""
