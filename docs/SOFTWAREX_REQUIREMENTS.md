@@ -50,7 +50,7 @@ This document captures the SoftwareX author-guide requirements that directly aff
 - `SX-024` (`MUST`): AI tools cannot be listed as authors/co-authors. (p.8)
 
 ### Review and Production Workflow
-- `SX-025` (`INFO`): Peer review is single anonymized and typically uses at least two reviewers. (p.4)
+- `SX-025` (`INFO`): Peer review is single-anonymized and typically uses at least two reviewers. (p.4)
 - `SX-026` (`MUST`): Submission checklist compliance is required (all files uploaded, references matched, permissions obtained, etc.). (p.25)
 - `SX-027` (`MUST`): If Word template is used, figures must be embedded in the `.docx`. (p.3, p.19, p.25)
 - `SX-028` (`MUST`): If LaTeX template is used, upload manuscript PDF plus full source ZIP in Editorial Manager. (p.26)

@@ -4,6 +4,9 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 
+permissions:
+  contents: read
+
 jobs:
   enforce-checklist-update:
     name: SoftwareX Checklist Guard
@@ -25,7 +28,7 @@ jobs:
           echo "Changed files:"
           printf '%s\n' "$changed_files"
 
-          critical_regex='^(README\.md|LICENSE\.txt|CITATION\.cff|pyproject\.toml|repo/src/|repo/tests/|repo/examples/|repo/data/|\.github/workflows/)'
+          critical_regex='^(README\.md|LICENSE\.txt|CITATION\.cff|pyproject\.toml|repo/src/|repo/tests/|repo/examples/|repo/data/|\.github/workflows/[^/]+$)'
           critical_changes="$(printf '%s\n' "$changed_files" | grep -E "$critical_regex" || true)"
 
           if [ -z "$critical_changes" ]; then

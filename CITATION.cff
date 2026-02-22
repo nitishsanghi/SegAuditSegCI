@@ -3,7 +3,6 @@ title: SegAudit
 message: "If you use SegAudit, please cite this software."
 type: software
 authors:
-  - family-names: SegAudit
-    given-names: Contributors
+  - name: SegAudit Contributors
 version: 0.1.0
 date-released: 2026-02-22

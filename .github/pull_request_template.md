@@ -10,8 +10,8 @@ Describe what changed and why.
 
 ## Checklist Update (Required)
 
-- [ ] I updated `docs/SOFTWAREX_CHECKLIST.md` for this PR.
-- [ ] No checklist update is required because no submission-critical files were changed.
+- [ ] I updated `docs/SOFTWAREX_CHECKLIST.md` for this PR. (Check exactly one)
+- [ ] No checklist update is required because no submission-critical files were changed. (Check exactly one)
 
 If you check "No checklist update is required", explain why:
 

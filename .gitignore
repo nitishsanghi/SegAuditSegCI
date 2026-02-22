@@ -4,6 +4,8 @@ __pycache__/
 *.so
 .pytest_cache/
 .mypy_cache/
+.coverage
+htmlcov/
 
 # Packaging
 *.egg-info/
@@ -13,9 +15,16 @@ build/
 # Virtual envs
 .venv/
 venv/
+env/
+ENV/
 
 # OS files
 .DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
+.env.*
 
 # Tool outputs
 out/

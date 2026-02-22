@@ -11,14 +11,10 @@ def test_help_returns_zero() -> None:
 
 def test_scaffolded_commands_present() -> None:
     parser = cli.build_parser()
-    subparsers_actions = [
-        action
-        for action in parser._actions
-        if action.__class__.__name__ == "_SubParsersAction"
-    ]
-    assert len(subparsers_actions) == 1
-    commands = set(subparsers_actions[0].choices.keys())
-    assert commands == {"eval", "gate", "drift", "report"}
+    for command in {"eval", "gate", "drift", "report"}:
+        args = parser.parse_args([command])
+        assert args.command == command
+        assert args.handler is cli._not_implemented
 
 
 def test_unimplemented_command_returns_error_code() -> None:
