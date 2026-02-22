@@ -137,10 +137,19 @@ def test_gate_summary_invalid_result_raises_error() -> None:
         GateSummarySchema.from_dict(payload)
 
 
-def test_drift_disclaimer_fields_are_enforced() -> None:
+def test_drift_invalid_interpretation_raises_error() -> None:
     payload = _drift_payload()
     payload["interpretation"] = "quality_signal"
     with pytest.raises(SchemaValidationError, match="interpretation"):
+        DriftSchema.from_dict(payload)
+
+
+def test_drift_requires_gt_for_quality_confirmation_must_be_true() -> None:
+    payload = _drift_payload()
+    payload["requires_gt_for_quality_confirmation"] = False
+    with pytest.raises(
+        SchemaValidationError, match="requires_gt_for_quality_confirmation"
+    ):
         DriftSchema.from_dict(payload)
 
 
@@ -152,10 +161,14 @@ def test_baseline_stats_missing_hash_raises_error() -> None:
 
 
 def test_generic_validator_dispatches_by_schema_kind() -> None:
-    validate_schema(_report_payload(), "report")
-    validate_schema(_gate_summary_payload(), "gate_summary")
-    validate_schema(_drift_payload(), "drift")
-    validate_schema(_baseline_stats_payload(), "baseline_stats")
+    assert isinstance(validate_schema(_report_payload(), "report"), ReportSchema)
+    assert isinstance(
+        validate_schema(_gate_summary_payload(), "gate_summary"), GateSummarySchema
+    )
+    assert isinstance(validate_schema(_drift_payload(), "drift"), DriftSchema)
+    assert isinstance(
+        validate_schema(_baseline_stats_payload(), "baseline_stats"), BaselineStatsSchema
+    )
 
 
 def test_generic_validator_rejects_unknown_schema_kind() -> None:
@@ -169,4 +182,18 @@ def test_load_schema_file_validates_payload_from_disk() -> None:
         path = Path(tmpdir) / "report.json"
         path.write_text(json.dumps(payload), encoding="utf-8")
         loaded = load_schema_file(path, "report")
-    assert loaded == payload
+    assert isinstance(loaded, ReportSchema)
+    assert loaded.to_dict() == payload
+
+
+def test_direct_schema_instantiation_runs_validation() -> None:
+    with pytest.raises(SchemaValidationError, match="schema_version"):
+        ReportSchema(
+            schema_version="2.0",
+            run_info={"command": "eval"},
+            dataset={"format": "folder_masks"},
+            metric_config={"boundary_radius_px": 2},
+            summary_metrics={"miou": 0.8},
+            per_class_metrics={"0": {"iou": 0.9}},
+            slices=[],
+        )

@@ -92,6 +92,23 @@ class ReportSchema:
     drift: dict[str, Any] | None = None
     artifacts: dict[str, Any] | None = None
 
+    def __post_init__(self) -> None:
+        self.schema_version = _validate_schema_version(self.schema_version)
+        self.run_info = _as_mapping(self.run_info, field_name="run_info")
+        self.dataset = _as_mapping(self.dataset, field_name="dataset")
+        self.metric_config = _as_mapping(self.metric_config, field_name="metric_config")
+        self.summary_metrics = _as_mapping(self.summary_metrics, field_name="summary_metrics")
+        self.per_class_metrics = _as_mapping(
+            self.per_class_metrics, field_name="per_class_metrics"
+        )
+        self.slices = _as_dict_list(self.slices, field_name="slices")
+        if self.regressions is not None:
+            self.regressions = _as_dict_list(self.regressions, field_name="regressions")
+        if self.drift is not None:
+            self.drift = _as_mapping(self.drift, field_name="drift")
+        if self.artifacts is not None:
+            self.artifacts = _as_mapping(self.artifacts, field_name="artifacts")
+
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> ReportSchema:
         data = _as_mapping(payload, field_name="report")
@@ -109,30 +126,16 @@ class ReportSchema:
             schema_name="report",
         )
         return cls(
-            schema_version=_validate_schema_version(data["schema_version"]),
-            run_info=_as_mapping(data["run_info"], field_name="run_info"),
-            dataset=_as_mapping(data["dataset"], field_name="dataset"),
-            metric_config=_as_mapping(data["metric_config"], field_name="metric_config"),
-            summary_metrics=_as_mapping(data["summary_metrics"], field_name="summary_metrics"),
-            per_class_metrics=_as_mapping(
-                data["per_class_metrics"], field_name="per_class_metrics"
-            ),
-            slices=_as_dict_list(data["slices"], field_name="slices"),
-            regressions=(
-                _as_dict_list(data["regressions"], field_name="regressions")
-                if "regressions" in data and data["regressions"] is not None
-                else None
-            ),
-            drift=(
-                _as_mapping(data["drift"], field_name="drift")
-                if "drift" in data and data["drift"] is not None
-                else None
-            ),
-            artifacts=(
-                _as_mapping(data["artifacts"], field_name="artifacts")
-                if "artifacts" in data and data["artifacts"] is not None
-                else None
-            ),
+            schema_version=data["schema_version"],
+            run_info=data["run_info"],
+            dataset=data["dataset"],
+            metric_config=data["metric_config"],
+            summary_metrics=data["summary_metrics"],
+            per_class_metrics=data["per_class_metrics"],
+            slices=data["slices"],
+            regressions=data.get("regressions"),
+            drift=data.get("drift"),
+            artifacts=data.get("artifacts"),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -168,6 +171,24 @@ class GateSummarySchema:
     deltas: list[dict[str, Any]] | None = None
     metadata: dict[str, Any] | None = None
 
+    def __post_init__(self) -> None:
+        self.schema_version = _validate_schema_version(self.schema_version)
+        result = _as_non_empty_string(self.result, field_name="result")
+        if result not in GATE_RESULTS:
+            allowed = ", ".join(sorted(GATE_RESULTS))
+            raise SchemaValidationError(f"'result' must be one of {{{allowed}}}.")
+        exit_code = _as_int(self.exit_code, field_name="exit_code")
+        if exit_code not in EXIT_CODES:
+            allowed_exit = ", ".join(str(value) for value in sorted(EXIT_CODES))
+            raise SchemaValidationError(f"'exit_code' must be one of {{{allowed_exit}}}.")
+        self.result = result
+        self.exit_code = exit_code
+        self.checks = _as_dict_list(self.checks, field_name="checks")
+        if self.deltas is not None:
+            self.deltas = _as_dict_list(self.deltas, field_name="deltas")
+        if self.metadata is not None:
+            self.metadata = _as_mapping(self.metadata, field_name="metadata")
+
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> GateSummarySchema:
         data = _as_mapping(payload, field_name="gate_summary")
@@ -176,29 +197,13 @@ class GateSummarySchema:
             ("schema_version", "result", "checks", "exit_code"),
             schema_name="gate_summary",
         )
-        result = _as_non_empty_string(data["result"], field_name="result")
-        if result not in GATE_RESULTS:
-            allowed = ", ".join(sorted(GATE_RESULTS))
-            raise SchemaValidationError(f"'result' must be one of {{{allowed}}}.")
-        exit_code = _as_int(data["exit_code"], field_name="exit_code")
-        if exit_code not in EXIT_CODES:
-            allowed_exit = ", ".join(str(value) for value in sorted(EXIT_CODES))
-            raise SchemaValidationError(f"'exit_code' must be one of {{{allowed_exit}}}.")
         return cls(
-            schema_version=_validate_schema_version(data["schema_version"]),
-            result=result,
-            checks=_as_dict_list(data["checks"], field_name="checks"),
-            exit_code=exit_code,
-            deltas=(
-                _as_dict_list(data["deltas"], field_name="deltas")
-                if "deltas" in data and data["deltas"] is not None
-                else None
-            ),
-            metadata=(
-                _as_mapping(data["metadata"], field_name="metadata")
-                if "metadata" in data and data["metadata"] is not None
-                else None
-            ),
+            schema_version=data["schema_version"],
+            result=data["result"],
+            checks=data["checks"],
+            exit_code=data["exit_code"],
+            deltas=data.get("deltas"),
+            metadata=data.get("metadata"),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -230,6 +235,31 @@ class DriftSchema:
     interpretation: str
     requires_gt_for_quality_confirmation: bool
 
+    def __post_init__(self) -> None:
+        self.schema_version = _validate_schema_version(self.schema_version)
+        self.baseline_ref = _as_mapping(self.baseline_ref, field_name="baseline_ref")
+        self.signals = _as_dict_list(self.signals, field_name="signals")
+        severity = _as_non_empty_string(self.severity, field_name="severity")
+        if severity not in SEVERITY_LEVELS:
+            allowed = ", ".join(sorted(SEVERITY_LEVELS))
+            raise SchemaValidationError(f"'severity' must be one of {{{allowed}}}.")
+        interpretation = _as_non_empty_string(self.interpretation, field_name="interpretation")
+        if interpretation != "risk_signal":
+            raise SchemaValidationError("'interpretation' must be 'risk_signal'.")
+        disclaimer = _as_non_empty_string(self.disclaimer, field_name="disclaimer")
+        requires_gt = self.requires_gt_for_quality_confirmation
+        if not isinstance(requires_gt, bool):
+            raise SchemaValidationError(
+                "'requires_gt_for_quality_confirmation' must be a boolean."
+            )
+        if requires_gt is not True:
+            raise SchemaValidationError(
+                "'requires_gt_for_quality_confirmation' must be true for drift outputs."
+            )
+        self.severity = severity
+        self.interpretation = interpretation
+        self.disclaimer = disclaimer
+
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> DriftSchema:
         data = _as_mapping(payload, field_name="drift")
@@ -246,32 +276,16 @@ class DriftSchema:
             ),
             schema_name="drift",
         )
-        severity = _as_non_empty_string(data["severity"], field_name="severity")
-        if severity not in SEVERITY_LEVELS:
-            allowed = ", ".join(sorted(SEVERITY_LEVELS))
-            raise SchemaValidationError(f"'severity' must be one of {{{allowed}}}.")
-        interpretation = _as_non_empty_string(
-            data["interpretation"], field_name="interpretation"
-        )
-        if interpretation != "risk_signal":
-            raise SchemaValidationError("'interpretation' must be 'risk_signal'.")
-        requires_gt = data["requires_gt_for_quality_confirmation"]
-        if not isinstance(requires_gt, bool):
-            raise SchemaValidationError(
-                "'requires_gt_for_quality_confirmation' must be a boolean."
-            )
-        if requires_gt is not True:
-            raise SchemaValidationError(
-                "'requires_gt_for_quality_confirmation' must be true for drift outputs."
-            )
         return cls(
-            schema_version=_validate_schema_version(data["schema_version"]),
-            baseline_ref=_as_mapping(data["baseline_ref"], field_name="baseline_ref"),
-            signals=_as_dict_list(data["signals"], field_name="signals"),
-            severity=severity,
-            disclaimer=_as_non_empty_string(data["disclaimer"], field_name="disclaimer"),
-            interpretation=interpretation,
-            requires_gt_for_quality_confirmation=requires_gt,
+            schema_version=data["schema_version"],
+            baseline_ref=data["baseline_ref"],
+            signals=data["signals"],
+            severity=data["severity"],
+            disclaimer=data["disclaimer"],
+            interpretation=data["interpretation"],
+            requires_gt_for_quality_confirmation=data[
+                "requires_gt_for_quality_confirmation"
+            ],
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -300,6 +314,16 @@ class BaselineStatsSchema:
     thresholds: dict[str, Any]
     class_map_hash: str
 
+    def __post_init__(self) -> None:
+        self.schema_version = _validate_schema_version(self.schema_version)
+        self.reference_window = _as_mapping(self.reference_window, field_name="reference_window")
+        self.signals = _as_mapping(self.signals, field_name="signals")
+        self.detector_config = _as_mapping(self.detector_config, field_name="detector_config")
+        self.thresholds = _as_mapping(self.thresholds, field_name="thresholds")
+        self.class_map_hash = _as_non_empty_string(
+            self.class_map_hash, field_name="class_map_hash"
+        )
+
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> BaselineStatsSchema:
         data = _as_mapping(payload, field_name="baseline_stats")
@@ -316,18 +340,12 @@ class BaselineStatsSchema:
             schema_name="baseline_stats",
         )
         return cls(
-            schema_version=_validate_schema_version(data["schema_version"]),
-            reference_window=_as_mapping(
-                data["reference_window"], field_name="reference_window"
-            ),
-            signals=_as_mapping(data["signals"], field_name="signals"),
-            detector_config=_as_mapping(
-                data["detector_config"], field_name="detector_config"
-            ),
-            thresholds=_as_mapping(data["thresholds"], field_name="thresholds"),
-            class_map_hash=_as_non_empty_string(
-                data["class_map_hash"], field_name="class_map_hash"
-            ),
+            schema_version=data["schema_version"],
+            reference_window=data["reference_window"],
+            signals=data["signals"],
+            detector_config=data["detector_config"],
+            thresholds=data["thresholds"],
+            class_map_hash=data["class_map_hash"],
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -364,7 +382,10 @@ def validate_baseline_stats(payload: Mapping[str, Any]) -> BaselineStatsSchema:
     return BaselineStatsSchema.from_dict(payload)
 
 
-def validate_schema(payload: Mapping[str, Any], schema_kind: str) -> None:
+SchemaModel = ReportSchema | GateSummarySchema | DriftSchema | BaselineStatsSchema
+
+
+def validate_schema(payload: Mapping[str, Any], schema_kind: str) -> SchemaModel:
     """Validate a payload for a supported schema kind."""
     if schema_kind not in SCHEMA_KINDS:
         allowed = ", ".join(sorted(SCHEMA_KINDS))
@@ -372,18 +393,15 @@ def validate_schema(payload: Mapping[str, Any], schema_kind: str) -> None:
             f"Unsupported schema kind '{schema_kind}'. Expected one of {{{allowed}}}."
         )
     if schema_kind == "report":
-        validate_report(payload)
-        return
+        return validate_report(payload)
     if schema_kind == "gate_summary":
-        validate_gate_summary(payload)
-        return
+        return validate_gate_summary(payload)
     if schema_kind == "drift":
-        validate_drift(payload)
-        return
-    validate_baseline_stats(payload)
+        return validate_drift(payload)
+    return validate_baseline_stats(payload)
 
 
-def load_schema_file(path: str | Path, schema_kind: str) -> dict[str, Any]:
+def load_schema_file(path: str | Path, schema_kind: str) -> SchemaModel:
     """Load and validate a schema file from disk."""
     schema_path = Path(path)
     with schema_path.open("r", encoding="utf-8") as handle:
@@ -393,5 +411,4 @@ def load_schema_file(path: str | Path, schema_kind: str) -> dict[str, Any]:
             f"Top-level JSON payload in '{schema_path}' must be a mapping."
         )
     payload_dict = dict(payload)
-    validate_schema(payload_dict, schema_kind)
-    return payload_dict
+    return validate_schema(payload_dict, schema_kind)

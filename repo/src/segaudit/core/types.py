@@ -40,7 +40,7 @@ class Sample:
     def validate(self) -> None:
         """Validate the sample against the canonical contract."""
         meta = _require_mapping(self.meta, field_name="meta")
-        sample_id = _require_non_empty_string(meta.get("sample_id"), field_name="meta.sample_id")
+        _require_non_empty_string(meta.get("sample_id"), field_name="meta.sample_id")
         domain = _require_non_empty_string(meta.get("domain"), field_name="meta.domain")
         if domain not in ALLOWED_DOMAINS:
             allowed = ", ".join(sorted(ALLOWED_DOMAINS))
@@ -50,17 +50,15 @@ class Sample:
         _require_non_empty_string(meta.get("sensor"), field_name="meta.sensor")
         if self.pred is None:
             raise SampleValidationError("'pred' is required and cannot be None.")
-        meta["sample_id"] = sample_id
-        meta["domain"] = domain
         self.meta = meta
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a plain dictionary."""
-        payload: dict[str, Any] = {"pred": self.pred, "meta": deepcopy(self.meta)}
+        payload: dict[str, Any] = {"pred": deepcopy(self.pred), "meta": deepcopy(self.meta)}
         if self.gt is not None:
-            payload["gt"] = self.gt
+            payload["gt"] = deepcopy(self.gt)
         if self.logits is not None:
-            payload["logits"] = self.logits
+            payload["logits"] = deepcopy(self.logits)
         return payload
 
     @classmethod
@@ -75,7 +73,7 @@ class Sample:
             pred=data["pred"],
             gt=data.get("gt"),
             logits=data.get("logits"),
-            meta=_require_mapping(data["meta"], field_name="payload.meta"),
+            meta=data["meta"],
         )
 
 

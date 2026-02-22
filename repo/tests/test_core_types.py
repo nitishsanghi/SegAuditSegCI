@@ -31,7 +31,7 @@ def test_sample_missing_meta_raises_validation_error() -> None:
 
 
 def test_sample_invalid_domain_raises_validation_error() -> None:
-    with pytest.raises(SampleValidationError, match="meta.domain"):
+    with pytest.raises(SampleValidationError, match=r"meta\.domain"):
         Sample.from_dict(
             {
                 "pred": [[0, 1], [1, 0]],

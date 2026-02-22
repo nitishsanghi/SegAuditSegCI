@@ -25,8 +25,12 @@ Current scaffold has placeholder functions and no enforceable contract models. W
 
 ## Contracts
 1. `Sample` contains prediction payload, optional GT, optional logits, and metadata.
-2. Every output schema includes `schema_version`.
-3. Validation must produce deterministic errors for missing/invalid fields.
+2. Required `Sample.meta` fields:
+- `sample_id`: non-empty string
+- `sensor`: non-empty string
+- `domain`: non-empty string in `{adas, medical, industrial, none}`
+3. Every output schema includes `schema_version`.
+4. Validation must produce deterministic errors for missing/invalid fields.
 
 ## Data/Schema Impact
 1. `repo/src/segaudit/core/types.py`: canonical `Sample`.
