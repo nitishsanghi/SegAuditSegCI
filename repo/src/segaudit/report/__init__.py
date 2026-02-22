@@ -1,1 +1,43 @@
-"""report module."""
+"""Report schema contracts and rendering utilities."""
+
+from segaudit.report.schema import (
+    BaselineStatsSchema,
+    DriftSchema,
+    EXIT_CODES,
+    GATE_RESULTS,
+    GateSummarySchema,
+    ReportSchema,
+    SCHEMA_KINDS,
+    SCHEMA_VERSION_V1,
+    SEVERITY_LEVELS,
+    SchemaModel,
+    SchemaValidationError,
+    SUPPORTED_SCHEMA_VERSIONS,
+    load_schema_file,
+    validate_baseline_stats,
+    validate_drift,
+    validate_gate_summary,
+    validate_report,
+    validate_schema,
+)
+
+__all__ = [
+    "BaselineStatsSchema",
+    "DriftSchema",
+    "EXIT_CODES",
+    "GATE_RESULTS",
+    "GateSummarySchema",
+    "ReportSchema",
+    "SCHEMA_KINDS",
+    "SCHEMA_VERSION_V1",
+    "SEVERITY_LEVELS",
+    "SUPPORTED_SCHEMA_VERSIONS",
+    "SchemaModel",
+    "SchemaValidationError",
+    "load_schema_file",
+    "validate_baseline_stats",
+    "validate_drift",
+    "validate_gate_summary",
+    "validate_report",
+    "validate_schema",
+]
