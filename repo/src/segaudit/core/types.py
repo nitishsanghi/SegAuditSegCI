@@ -20,9 +20,12 @@ def _require_mapping(value: Any, *, field_name: str) -> dict[str, Any]:
 
 
 def _require_non_empty_string(value: Any, *, field_name: str) -> str:
-    if not isinstance(value, str) or not value.strip():
+    if not isinstance(value, str):
         raise SampleValidationError(f"'{field_name}' must be a non-empty string.")
-    return value
+    normalized = value.strip()
+    if not normalized:
+        raise SampleValidationError(f"'{field_name}' must be a non-empty string.")
+    return normalized
 
 
 @dataclass(slots=True)
@@ -40,17 +43,25 @@ class Sample:
     def validate(self) -> None:
         """Validate the sample against the canonical contract."""
         meta = _require_mapping(self.meta, field_name="meta")
-        _require_non_empty_string(meta.get("sample_id"), field_name="meta.sample_id")
+        sample_id = _require_non_empty_string(meta.get("sample_id"), field_name="meta.sample_id")
         domain = _require_non_empty_string(meta.get("domain"), field_name="meta.domain")
+        sensor = _require_non_empty_string(meta.get("sensor"), field_name="meta.sensor")
         if domain not in ALLOWED_DOMAINS:
             allowed = ", ".join(sorted(ALLOWED_DOMAINS))
             raise SampleValidationError(
                 f"'meta.domain' must be one of {{{allowed}}}, got '{domain}'."
             )
-        _require_non_empty_string(meta.get("sensor"), field_name="meta.sensor")
         if self.pred is None:
             raise SampleValidationError("'pred' is required and cannot be None.")
+        meta["sample_id"] = sample_id
+        meta["domain"] = domain
+        meta["sensor"] = sensor
         self.meta = deepcopy(meta)
+        self.pred = deepcopy(self.pred)
+        if self.gt is not None:
+            self.gt = deepcopy(self.gt)
+        if self.logits is not None:
+            self.logits = deepcopy(self.logits)
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to a plain dictionary."""
